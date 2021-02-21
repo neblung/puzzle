@@ -29,25 +29,27 @@ class Field(val cells: Array<ByteArray>) {
     }
 
     fun fillThin(hole: Position, from: Orientation, cell: Byte): Int {
-        return doFill(hole, from, belongsToSamePiece(cell, from))
+        return numSteps(cell, from).also { steps ->
+            doFill(hole, from, steps)
+        }
     }
 
     fun fillLarge(hole: Position, main: Orientation, cell: Byte, side: Orientation): Int {
-        val large = belongsToSamePiece(cell, main)
-        doFill(hole, main, large)
-        doFill(hole.go(side), main, large)
-        return if (large) 2 else 1
+        return (numSteps(cell, main)).also { steps ->
+            doFill(hole, main, steps)
+            doFill(hole.go(side), main, steps)
+        }
     }
 
-    private fun doFill(hole: Position, from: Orientation, large: Boolean): Int {
+    private fun numSteps(cell: Byte, main: Orientation) = if (belongsToSamePiece(cell, main)) 2 else 1
+
+    private fun doFill(hole: Position, from: Orientation, steps: Int) {
         this[hole] = this[hole.go(from)]
-        return if (large) {
+        if (steps == 2) {
             this[hole.go(from)] = this[hole.go(from, steps = 2)]
             this[hole.go(from, steps = 2)] = HOLE
-            2
         } else {
             this[hole.go(from)] = HOLE
-            1
         }
     }
 
