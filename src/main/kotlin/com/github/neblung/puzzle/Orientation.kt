@@ -1,5 +1,9 @@
 package com.github.neblung.puzzle
 
+/**
+ * Richtung aus der man Steine ins Loch schieben kann.
+ * Die Ordinal-Zahl korrespondiert mit der Kodierung der Zellen auf dem Spielfeld.
+ */
 enum class Orientation {
     EAST, NORTH, WEST, SOUTH;
 

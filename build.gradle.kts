@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.4.30"
+    application
 }
 
 group = "com.github.neblung.puzzle"
@@ -8,6 +9,10 @@ version = "0.1-SNAPSHOT"
 repositories {
     mavenLocal()
     mavenCentral()
+}
+
+application {
+    mainClass.set("com.github.neblung.puzzle.MainKt")
 }
 
 dependencies {

@@ -2,13 +2,13 @@ package com.github.neblung.puzzle
 
 /**
  * Der Feld-Inhalt.
- * Im value ist kodiert, welcher Teil von welchem Stein in der Zelle liegt.
+ * In einer Zelle ist kodiert, welcher Teil von welchem Stein in der Zelle liegt.
  * Bit 0 ist gesetzt, wenn die rechte Nachbarzelle zum selben Stein gehört.
  * Bit 1 ist gesetzt, wenn die obere Nachbarzelle zum selben Stein gehört.
  * Bit 2 ist gesetzt, wenn die linke Nachbarzelle zum selben Stein gehört.
  * Bit 3 ist gesetzt, wenn die untere Nachbarzelle zum selben Stein gehört.
  * Das korrespondiert mit den Ordinal-Zahlen von Orientation.
- * -1 ist die Sonderbedeutung für 'kein Stein'.
+ * -1 ist die Sonderbedeutung für 'kein Stein', sonder ein Loch.
  */
 
 class Field(val cells: Array<ByteArray>) {
@@ -16,11 +16,19 @@ class Field(val cells: Array<ByteArray>) {
         private const val HOLE = (-1).toByte()
     }
 
+    /**
+     * Erstellt eine Kopie von diesem Feld. Um die Folge-Stellung zu berechnen,
+     * machen wir zuerst eine Kopie und arbeiten dann die Änderung ein, die sich
+     * durch das Schieben ergibt.
+     */
     fun copy(): Field {
         val copiedCells = cells.map { row -> ByteArray(row.size) { row[it] } }
         return Field(copiedCells.toTypedArray())
     }
 
+    /**
+     * Liefert eine Darstellung.
+     */
     fun print(): List<String> {
         fun rowToString(row: ByteArray): String {
             return String(row.map { cellToChar(it) }.toCharArray())
@@ -28,12 +36,24 @@ class Field(val cells: Array<ByteArray>) {
         return cells.map { rowToString(it) }
     }
 
+    /**
+     * Schieben eines Steins mit der schlanken Seite.
+     * Also die kleinen Steine, oder der breite Stein horizontal, oder der stehende
+     * Stein vertikal.
+     * @return ob sich das Loch um eine oder um zwei Positionen verschiebt
+     */
     fun fillThin(hole: Position, from: Orientation, cell: Byte): Int {
         return numSteps(cell, from).also { steps ->
             doFill(hole, from, steps)
         }
     }
 
+    /**
+     * Schieben eines Steins mit der breiten Seite.
+     * Also der große Stein, oder der stehende Stein horizontal, oder der breite
+     * Stein vertikal.
+     * @return ob sich die Löcher um eine oder um zwei Positionen verschieben
+     */
     fun fillLarge(hole: Position, main: Orientation, cell: Byte, side: Orientation): Int {
         return (numSteps(cell, main)).also { steps ->
             doFill(hole, main, steps)
@@ -61,7 +81,12 @@ class Field(val cells: Array<ByteArray>) {
         cells[position.y][position.x] = value
     }
 
-    fun canMoveThin(hole: Position, from: Orientation): Byte? {
+    /**
+     * Kann das gegebene Loch aus der gegebenen Richtung befüllt werden?
+     * Ist Schieben mit schmaler Seite möglich?
+     * @return die Zelle, die in das Loch geschoben wird oder aber null, wenn das nicht geht
+     */
+    fun canFillThin(hole: Position, from: Orientation): Byte? {
         if (hole.isAtBorder(from)) return null
         return this[hole.go(from)].takeUnless { candidate ->
             candidate == HOLE
@@ -70,7 +95,13 @@ class Field(val cells: Array<ByteArray>) {
         }
     }
 
-    fun canLargeMove(hole: Position, main: Orientation, side: Orientation): Byte? {
+    /**
+     * Kann das gegebene Loch aus der gegebenen Richtung befüllt werden?
+     * Ist Schieben mit breiter Seite möglich?
+     * Der Aufrufer prüft, dass das andere Loch passend angrenzt.
+     * @return die Zelle, die in das Loch geschoben wird oder aber null, wenn das nicht geht
+     */
+    fun canFillLarge(hole: Position, main: Orientation, side: Orientation): Byte? {
         if (hole.isAtBorder(main)) return null
         return this[hole.go(main)].takeIf { candidate ->
             belongsToSamePiece(candidate, side)
@@ -97,20 +128,15 @@ private fun Position.isAtBorder(orientation: Orientation) = when (orientation) {
     Orientation.SOUTH -> y == 4
 }
 
-private fun belongsToSamePiece(cell: Byte, orientation: Orientation): Boolean {
-    return cell.toInt() and (1 shl orientation.ordinal) == (1 shl orientation.ordinal)
+private fun belongsToSamePiece(cell: Byte, from: Orientation): Boolean {
+    return cell.toInt() and (1 shl from.ordinal) == (1 shl from.ordinal)
 }
 
-private fun cellToChar(value: Byte): Char = when (value) {
-    0.toByte() -> 'o'
-    1.toByte() -> '-'
-    4.toByte() -> '-'
-    2.toByte() -> 'I'
-    8.toByte() -> 'I'
-    3.toByte() -> 'X'
-    6.toByte() -> 'X'
-    9.toByte() -> 'X'
-    12.toByte() -> 'X'
-    (-1).toByte() -> ' '
+private fun cellToChar(value: Byte): Char = when (value.toInt()) {
+    0 -> 'o'
+    1, 4 -> '-'
+    2, 8 -> 'I'
+    9, 0xC, 3, 6 -> 'X'
+    (-1) -> ' '
     else -> throw IllegalStateException("can't print: $value")
 }

@@ -1,5 +1,8 @@
 package com.github.neblung.puzzle
 
+/**
+ * Position der beiden Löcher auf dem Spielfeld.
+ */
 data class Space(val hole1: Position, val hole2: Position)
 
 fun position(coordinates: String): Position {

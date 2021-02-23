@@ -22,7 +22,11 @@ private val initialField = Field(
     )
 )
 
-
+/**
+ * Findet eine Lösung durch Breitensuche.
+ * Wir errechnen ausgehend von der Start-Stellung alle Folge-Stellungen durch die möglichen Bewegungen.
+ * Bereits bekannte Stellungen werden verworfen.
+ */
 fun findSolution(): Board? {
     val startBoard = Board(null, initialField, space("C1", "C4"))
     val queue = ArrayDeque(listOf(startBoard))
@@ -32,10 +36,11 @@ fun findSolution(): Board? {
         println("queue size == ${queue.size}  # known fields == ${known.size}")
     }
 
+    // Die Lösung ist gefunden, wenn der große Stein oben mittig ist.
     fun Field.isSolution() = cells[0][1] == 9.toByte()
 
     while (queue.isNotEmpty()) {
-        printStatistic()
+//        printStatistic()
         val board = queue.removeFirst()
         if (board.field.isSolution()) {
             return board

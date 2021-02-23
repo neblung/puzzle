@@ -276,7 +276,7 @@ class FieldTests {
         // method under test
         private fun check(holeString: String, from: Orientation): Byte? {
             val hole = position(holeString)
-            return field.canMoveThin(hole, from)
+            return field.canFillThin(hole, from)
         }
 
         @Test
@@ -300,7 +300,7 @@ class FieldTests {
         // method under test
         private fun check(holeString: String, main: Orientation, side: Orientation): Byte? {
             val hole = position(holeString)
-            return field.canLargeMove(hole, main, side)
+            return field.canFillLarge(hole, main, side)
         }
 
         @Test
