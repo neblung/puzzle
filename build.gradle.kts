@@ -15,6 +15,18 @@ application {
     mainClass.set("com.github.neblung.puzzle.MainKt")
 }
 
+// https://docs.gradle.org/current/userguide/working_with_files.html#sec:creating_uber_jar_example
+tasks.register<Jar>("uberJar") {
+    archiveFileName.set("uber.jar")
+
+    manifest {
+        attributes["Main-Class"] = application.mainClass
+    }
+
+    from(sourceSets.main.get().output)
+    from(configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) })
+}
+
 dependencies {
     val kotestVersion = "4.3.1"
     val junit5Version = "5.7.0"

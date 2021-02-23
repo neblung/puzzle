@@ -33,8 +33,12 @@ The goal was, by moving the pieces around, to get the big piece to the top.
     +----+        +----+        +----+            +----+    
 ```
 
-This project solves the puzzle with the help of breadth-first search implemented in kotlin. You can see the necessary
-moves by running
+This project solves the puzzle with the help of breadth-first search implemented in kotlin. You can show the necessary
+moves by running the program.
 
     gradlew run
 
+Or if you have docker installed:
+
+    docker build -t puzzle .
+    docker run puzzle
