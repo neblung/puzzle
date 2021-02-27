@@ -1,5 +1,7 @@
 package com.github.neblung.puzzle
 
+import com.github.neblung.puzzle.Orientation.*
+
 /**
  * Der Feld-Inhalt.
  * In einer Zelle ist kodiert, welcher Teil von welchem Stein in der Zelle liegt.
@@ -61,7 +63,10 @@ class Field(val cells: Array<ByteArray>) {
         }
     }
 
-    private fun numSteps(cell: Byte, main: Orientation) = if (belongsToSamePiece(cell, main)) 2 else 1
+    private fun numSteps(cell: Byte, main: Orientation) = when {
+        belongsToSamePiece(cell, main) -> 2
+        else -> 1
+    }
 
     private fun doFill(hole: Position, from: Orientation, steps: Int) {
         this[hole] = this[hole.go(from)]
@@ -122,10 +127,10 @@ class Field(val cells: Array<ByteArray>) {
 }
 
 private fun Position.isAtBorder(orientation: Orientation) = when (orientation) {
-    Orientation.EAST -> x == 3
-    Orientation.WEST -> x == 0
-    Orientation.NORTH -> y == 0
-    Orientation.SOUTH -> y == 4
+    EAST -> x == 3
+    WEST -> x == 0
+    NORTH -> y == 0
+    SOUTH -> y == 4
 }
 
 private fun belongsToSamePiece(cell: Byte, from: Orientation): Boolean {

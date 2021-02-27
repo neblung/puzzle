@@ -40,5 +40,4 @@ moves by running the program.
 
 Or if you have docker installed:
 
-    docker build -t puzzle .
-    docker run puzzle
+    docker-compose up
